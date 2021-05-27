@@ -20,11 +20,13 @@ final class AuthClass {
         
         let semaphore = DispatchSemaphore(value: 0)
         
-        let request = NSMutableURLRequest(url: NSURL(string: "\(Constants.ws.baseUrl)\(Constants.ws.auth)")! as URL,
+        let request = NSMutableURLRequest(url: URL(string: "\(Constants.ws.baseUrl)\(Constants.ws.auth)")!,
                                           cachePolicy: .useProtocolCachePolicy,
                                           timeoutInterval: 15.0)
-        request.httpMethod = "POST"
-        request.allHTTPHeaderFields = ["Content-Type": "application/json"]
+        request.httpMethod = Constants.ws.method.POST
+        request.allHTTPHeaderFields = [
+            Constants.ws.headers.contentType: Constants.ws.headers.value.json
+        ]
         request.httpBody = parameters
         
         let session = URLSession.shared
@@ -44,10 +46,6 @@ final class AuthClass {
         dataTask.resume()
         
         semaphore.wait()
-    }
-    
-    func printAuth() {
-        dump(authObject)
     }
     
     func bearer() -> String {

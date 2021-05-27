@@ -21,10 +21,10 @@ final class LangClass {
         let request = NSMutableURLRequest(url: URL(string: "\(Constants.ws.baseUrl)\(Constants.ws.langs(project: project))")!,
                                           cachePolicy: .useProtocolCachePolicy,
                                           timeoutInterval: 15.0)
-        request.httpMethod = "get"
+        request.httpMethod = Constants.ws.method.GET
         request.allHTTPHeaderFields = [
-            "Content-Type": "application/json",
-            "authorization": AuthClass.shared.bearer()
+            Constants.ws.headers.contentType: Constants.ws.headers.value.json,
+            Constants.ws.headers.authorization: AuthClass.shared.bearer()
         ]
         
         let session = URLSession.shared
@@ -52,8 +52,8 @@ final class LangClass {
         var components = URLComponents(string: "\(Constants.ws.baseUrl)\(Constants.ws.downloadLang(project: project, language: language, label: label))")!
 
         components.queryItems = [
-            URLQueryItem(name: "locale", value: language),
-            URLQueryItem(name: "format", value: "jsonnested")
+            URLQueryItem(name: Constants.ws.query.locale, value: language),
+            URLQueryItem(name: Constants.ws.query.format, value: Constants.ws.query.value.jsonNested)
         ]
         
         components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
@@ -61,10 +61,10 @@ final class LangClass {
         let request = NSMutableURLRequest(url: components.url!,
                                           cachePolicy: .useProtocolCachePolicy,
                                           timeoutInterval: 15.0)
-        request.httpMethod = "GET"
+        request.httpMethod = Constants.ws.method.GET
         request.allHTTPHeaderFields = [
-            "Content-Type": "application/octet-stream",
-            "authorization": AuthClass.shared.bearer()
+            Constants.ws.headers.contentType: Constants.ws.headers.value.octet,
+            Constants.ws.headers.authorization: AuthClass.shared.bearer()
         ]
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in

@@ -19,5 +19,28 @@ struct Constants {
                 return "api/v1/projects/\(project)/exports"
             }
         }
+        
+        struct method {
+            static let POST = "POST"
+            static let GET = "GET"
+        }
+        
+        struct headers {
+            static let contentType = "Content-Type"
+            static let authorization = "authorization"
+            
+            struct value {
+                static let json = "application/json"
+                static let octet = "application/octet-stream"
+            }
+        }
+        
+        struct query {
+            static let locale = "locale"
+            static let format = "format"
+            struct value {
+                static let jsonNested = "jsonnested"
+            }
+        }
     }
 }
