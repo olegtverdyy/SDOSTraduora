@@ -1,12 +1,6 @@
 import Foundation
 import ArgumentParser
 
-//    TRADUORA_USER=oleg.tverdyy@sdos.es
-//    TRADUORA_PASSWORD=sdos_0845
-//    TRADUORA_CLIENT=3c44da2f-800f-49e1-8d67-3ab6a5268599
-//    TRADUORA_SECRET=Vn9eFccrlQb7NmPD14jn3XzfdWiMHWta
-//    TRADUORA_PROJECT=0ba33469-8cee-42b1-a638-1885a71ed4cf
-
 struct SDOSTraduora: ParsableCommand {
     
     @Option(help: "The lang separeted by ';' Example: es_ES;eu_ES") var lang: String?
@@ -58,15 +52,3 @@ struct SDOSTraduora: ParsableCommand {
 }
 
 SDOSTraduora.main()
-
-//let semaphore = DispatchSemaphore(value: 0)
-//
-//let task = session.uploadTask(with: request, from: jsonData) { data, response, error in
-//    if let data = data, let dataString = String(data: data, encoding: .utf8) {
-//        print(dataString)
-//    }
-//    semaphore.signal()
-//}
-//
-//task.resume()
-//semaphore.wait()
