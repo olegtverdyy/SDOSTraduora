@@ -94,7 +94,7 @@ final class LangClass {
                     //  Generate \(items.count) keys
                     """
                     let strings = items.map {
-                        var finalLine = self.formatLine("\"\($0.key)\" = \"\($0.value)\";")
+                        var finalLine = "\"\($0.key)\" = \"\(self.formatLine($0.value))\";"
                         while finalLine.contains("{") {
                             finalLine = self.formatLine(finalLine)
                         }
@@ -120,6 +120,8 @@ final class LangClass {
         
         lineFinal.removingRegexMatches(pattern: "%\\d", replaceWith: "")
         lineFinal = lineFinal.replacingOccurrences(of: "%", with: "%%")
+        lineFinal = lineFinal.replacingOccurrences(of: "\"", with: "\\\"")
+        lineFinal = lineFinal.replacingOccurrences(of: "\n", with: "\\n")
         
         
         if let slice = lineFinal.slice(from: "{", to: "}") {
