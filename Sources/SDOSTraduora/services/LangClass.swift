@@ -93,7 +93,9 @@ final class LangClass {
                     //
                     //  Generate \(items.count) keys
                     """
-                    let strings = items.map {
+                    let strings = items.sorted(by: { e1, e2 in
+                        e1.key < e2.key
+                    }).map {
                         var finalLine = "\"\($0.key)\" = \"\(self.formatLine($0.value))\";"
                         while finalLine.contains("{") {
                             finalLine = self.formatLine(finalLine)
