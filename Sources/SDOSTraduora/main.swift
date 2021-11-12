@@ -11,6 +11,7 @@ struct SDOSTraduora: ParsableCommand {
     @Option(name: [.customShort("c"), .long], help: "Client_id api created in traduora.") var clientId: String
     @Option(name: [.customShort("s"), .long], help: "Client_secret api created in traduora.") var clientSecret: String
     @Option(name: [.customShort("i"), .long], help: "Project id from traduora") var projectId: String
+    @Option(name: [.long], help: "Traduora domain server (For example: traduora.sdos.es") var server: String?
     
     @Option(name: [.customShort("o"), .customLong("output-path")], help: "Desired output path for generated files.") var output: String
     
@@ -28,7 +29,7 @@ struct SDOSTraduora: ParsableCommand {
     
     func downloadLang(language: String) {
         print("Downloading ... \(language)")
-        LangClass.shared.download(project: self.projectId, language: language, output: self.output, label: self.label)
+        LangClass.shared.download(server: server, project: self.projectId, language: language, output: self.output, label: self.label)
     }
     
     mutating func getLangs() {
@@ -37,7 +38,7 @@ struct SDOSTraduora: ParsableCommand {
         }
         
         if self.langs.count == 0 {
-            LangClass.shared.langs(project: projectId)
+            LangClass.shared.langs(project: projectId, server: server)
             if let langs = LangClass.shared.getAllLangs() {
                 self.langs = langs
             }
@@ -46,7 +47,7 @@ struct SDOSTraduora: ParsableCommand {
     
     mutating func auth() {
         authObject = AuthObject(username: user, password: password, clientID: clientId, clientSecret: clientSecret)
-        AuthClass.shared.auth(authObject)
+        AuthClass.shared.auth(authObject, server: server)
     }
     
 }

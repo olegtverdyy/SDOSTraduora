@@ -14,11 +14,11 @@ final class LangClass {
     
     private var langs: [String]?
     
-    func langs(project: String) {
+    func langs(project: String, server: String?) {
         
         let semaphore = DispatchSemaphore(value: 0)
         
-        let request = NSMutableURLRequest(url: URL(string: "\(Constants.ws.baseUrl)\(Constants.ws.langs(project: project))")!,
+        let request = NSMutableURLRequest(url: URL(string: "\(Constants.ws.getBaseUrl(server: server))\(Constants.ws.langs(project: project))")!,
                                           cachePolicy: .useProtocolCachePolicy,
                                           timeoutInterval: 15.0)
         request.httpMethod = Constants.ws.method.GET
@@ -46,10 +46,10 @@ final class LangClass {
         semaphore.wait()
     }
     
-    func download(project: String, language: String, output: String, label: String? = nil) {
+    func download(server: String?, project: String, language: String, output: String, label: String? = nil) {
         let semaphore = DispatchSemaphore(value: 0)
         
-        var components = URLComponents(string: "\(Constants.ws.baseUrl)\(Constants.ws.downloadLang(project: project, language: language, label: label))")!
+        var components = URLComponents(string: "\(Constants.ws.getBaseUrl(server: server))\(Constants.ws.downloadLang(project: project, language: language, label: label))")!
 
         components.queryItems = [
             URLQueryItem(name: Constants.ws.query.locale, value: language),

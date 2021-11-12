@@ -14,13 +14,13 @@ final class AuthClass {
     
     private var authObject: AuthDTO?
     
-    func auth(_ form: AuthObject) {
+    func auth(_ form: AuthObject, server: String?) {
         
         guard let parameters = try? form.jsonData() else { return }
         
         let semaphore = DispatchSemaphore(value: 0)
         
-        let request = NSMutableURLRequest(url: URL(string: "\(Constants.ws.baseUrl)\(Constants.ws.auth)")!,
+        let request = NSMutableURLRequest(url: URL(string: "\(Constants.ws.getBaseUrl(server: server))\(Constants.ws.auth)")!,
                                           cachePolicy: .useProtocolCachePolicy,
                                           timeoutInterval: 15.0)
         request.httpMethod = Constants.ws.method.POST

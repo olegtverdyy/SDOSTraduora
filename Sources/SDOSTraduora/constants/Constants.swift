@@ -9,7 +9,11 @@ import Foundation
 
 struct Constants {
     struct ws {
-        static let baseUrl = "https://traduora.sdos.es/"
+        private static let _baseUrl = "traduora.sdos.es"
+        
+        static func getBaseUrl(server: String?) -> String {
+            return "https://\(server ?? _baseUrl)/"
+        }
         static let auth = "api/v1/auth/token"
         static func langs(project: String) -> String { "api/v1/projects/\(project)/translations" }
         static func downloadLang(project: String, language: String, label: String? = nil) -> String {
