@@ -5,9 +5,6 @@ struct SDOSTraduora: ParsableCommand {
     
     @Option(help: "Locale key to download, add one param each locale needed separeted by ';'. | Example: es_ES;eu_ES") var lang: String?
     @Option(name: [.customShort("k"), .long], help: "Label used to filter the translations exported by modules.") var label: String?
-    
-    @Option(name: [.customShort("u"), .long], help: "User used to login in traduora.") var user: String
-    @Option(name: [.customShort("p"), .long], help: "Password used to login in traduora.") var password: String
     @Option(name: [.customShort("c"), .long], help: "Client_id api created in traduora.") var clientId: String
     @Option(name: [.customShort("s"), .long], help: "Client_secret api created in traduora.") var clientSecret: String
     @Option(name: [.customShort("i"), .long], help: "Project id from traduora") var projectId: String
@@ -46,7 +43,7 @@ struct SDOSTraduora: ParsableCommand {
     }
     
     mutating func auth() {
-        authObject = AuthObject(username: user, password: password, clientID: clientId, clientSecret: clientSecret)
+        authObject = AuthObject(clientID: clientId, clientSecret: clientSecret)
         AuthClass.shared.auth(authObject, server: server)
     }
     

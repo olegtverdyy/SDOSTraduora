@@ -8,16 +8,14 @@
 import Foundation
 // MARK: - AuthObject
 struct AuthObject: Codable {
-    var grantType: String = "password"
-    let username: String
-    let password: String
+    var grantType: String = "client_credentials"
+    var username: String = "ios@alten.es"
+    var password: String = "-------------"
     let clientID: String
     let clientSecret: String
 
     enum CodingKeys: String, CodingKey {
         case grantType = "grant_type"
-        case username = "username"
-        case password = "password"
         case clientID = "client_id"
         case clientSecret = "client_secret"
     }
@@ -42,14 +40,10 @@ extension AuthObject {
     }
 
     func with(
-        username: String? = nil,
-        password: String? = nil,
         clientID: String? = nil,
         clientSecret: String? = nil
     ) -> AuthObject {
         return AuthObject(
-            username: username ?? self.username,
-            password: password ?? self.password,
             clientID: clientID ?? self.clientID,
             clientSecret: clientSecret ?? self.clientSecret
         )
