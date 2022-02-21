@@ -12,6 +12,8 @@ final class LangClass {
     
     private init() { }
     
+    private var cleanDirectory = false
+    
     private var langs: [String]?
     
     func langs(project: String, server: String?) {
@@ -79,6 +81,11 @@ final class LangClass {
                 let fileManager = FileManager.default
                 var isDir: ObjCBool = false
                 
+                if !self.cleanDirectory {
+                    self.cleanDirectory = true
+                    try? fileManager.removeItem(atPath: "\(output)")
+                }
+                
                 if !fileManager.fileExists(atPath: directoryName, isDirectory: &isDir) {
                     try? fileManager.createDirectory(atPath: directoryName, withIntermediateDirectories: true, attributes: nil)
                 }
@@ -88,8 +95,6 @@ final class LangClass {
                     let header = """
                     //  This is a generated file, do not edit!
                     //  Localizable.generated.strings
-                    //
-                    //  Created by SDOS
                     //
                     //  Generate \(items.count) keys
                     """
