@@ -131,7 +131,7 @@ final class LangClass {
         lineFinal = lineFinal.replacingOccurrences(of: "\n", with: "\\n")
         
         
-        if let slice = lineFinal.slice(from: "{", to: "}") {
+        while let slice = lineFinal.slice(from: "{", to: "}") {
             if slice == "string" {
                 lineFinal = lineFinal.replacingOccurrences(of: "{\(slice)}", with: "%@")
             } else if slice == "int" {
