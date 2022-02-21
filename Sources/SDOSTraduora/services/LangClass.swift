@@ -46,7 +46,7 @@ final class LangClass {
         semaphore.wait()
     }
     
-    func download(server: String?, project: String, language: String, output: String, label: String? = nil) {
+    func download(server: String?, project: String, language: String, output: String, fileName: String, label: String? = nil) {
         let semaphore = DispatchSemaphore(value: 0)
         
         var components = URLComponents(string: "\(Constants.ws.getBaseUrl(server: server))\(Constants.ws.downloadLang(project: project, language: language, label: label))")!
@@ -83,7 +83,7 @@ final class LangClass {
                     try? fileManager.createDirectory(atPath: directoryName, withIntermediateDirectories: true, attributes: nil)
                 }
                 
-                let filePath = "\(directoryName)/Localizable.generated.strings"
+                let filePath = "\(directoryName)/\(fileName)"
                 do {
                     let header = """
                     //  This is a generated file, do not edit!

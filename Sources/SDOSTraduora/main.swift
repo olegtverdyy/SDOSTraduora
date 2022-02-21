@@ -11,6 +11,7 @@ struct SDOSTraduora: ParsableCommand {
     @Option(name: [.long], help: "Traduora domain server (For example: traduora.sdos.es") var server: String?
     
     @Option(name: [.customShort("o"), .customLong("output-path")], help: "Desired output path for generated files.") var output: String
+    @Option(name: [.customShort("f"), .customLong("output-file-name")], help: "Desired file name for generated files.") var outputFileName: String
     
     var authObject: AuthObject!
     var langs: [String] = [String]()
@@ -26,7 +27,7 @@ struct SDOSTraduora: ParsableCommand {
     
     func downloadLang(language: String) {
         print("Downloading ... \(language)")
-        LangClass.shared.download(server: server, project: self.projectId, language: language, output: self.output, label: self.label)
+        LangClass.shared.download(server: server, project: self.projectId, language: language, output: self.output, fileName: outputFileName, label: self.label)
     }
     
     mutating func getLangs() {
