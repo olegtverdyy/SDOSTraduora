@@ -125,22 +125,12 @@ final class LangClass {
         
         var lineFinal = line
         
-        lineFinal.removingRegexMatches(pattern: "%\\d", replaceWith: "")
         lineFinal = lineFinal.replacingOccurrences(of: "%", with: "%%")
         lineFinal = lineFinal.replacingOccurrences(of: "\"", with: "\\\"")
         lineFinal = lineFinal.replacingOccurrences(of: "\n", with: "\\n")
-        
-        
-        while let slice = lineFinal.slice(from: "{", to: "}") {
-            if slice == "string" {
-                lineFinal = lineFinal.replacingOccurrences(of: "{\(slice)}", with: "%@")
-            } else if slice == "int" {
-                lineFinal = lineFinal.replacingOccurrences(of: "{\(slice)}", with: "%ld")
-            } else if slice.contains("int") {
-                let valueToRemplace = slice.replacingOccurrences(of: "int", with: "ld")
-                lineFinal = lineFinal.replacingOccurrences(of: "{\(slice)}", with: "%\(valueToRemplace)")
-            }
-        }
+        lineFinal = lineFinal.replaceRegexNumber()
+        lineFinal = lineFinal.replaceRegexDecimal()
+        lineFinal = lineFinal.replaceRegexString()
 
         return lineFinal
     }

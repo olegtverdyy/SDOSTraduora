@@ -57,26 +57,29 @@ Los textos que pongamos en la plataforma traduora permiten las siguientes adapta
 
 - Para añadir un parámetro de tipo `string` debemos mantener el siguiente formato:
   ```
-  {%{{posición}}string}
+  {{$<posición>;string}}
   ```
-    > Ejemplo: `"Hola, {%1string} y {%2string}"` da como salida `"Hola, %@ y %@"`
+    > Ejemplo: `"Hola, {{$1;string}} y {{$2;string}}"` da como salida `"Hola, %@ y %@"`
 
 - Para añadir un parámetro de tipo `int` debemos mantener el siguiente formato:
   ```
-  {%{{posición}}int}
+  {{$<posición>;number}}
   ```
-    > Ejemplo: `"Hola, tengo {%1int} años."` da como salida `"Hola, tengo %ld años."`
+    > Ejemplo: `"Hola, tengo {{$1;number}} años."` da como salida `"Hola, tengo %ld años."`
 
-- Si se trata de un texto que contenga un parámetro de tipo `int` pero con una longitud fija se define de la siguiente forma:
+- Para añadir un parámetro de tipo `float` debemos mantener uno de los siguientes formatos:
   ```
-  {%{{posición}}{{longitud}}int}
+  {{$<posición>;decimal}} -- Sin especificar número de decimales a mostrar
+  {{$<posición>;decimal;<decimales>}} -- Especificando el número de decimales a mostrar
   ```
-  La variable `{{longitud}}` indicará los caracterés numéricos que siempre deberá tener el texto.
-    > Ejemplo: `"Hola, mi número de teléfono es {%109int}"` da como salida `"Hola, mi número de teléfono es %09ld"`
+  La variable `<decimales>` será el número de decimales que se quieren mostrar. Es opcional y no tiene porque indicarse.
+    > Ejemplo: `"Valor del número Pi: {{$1;decimal}}"` da como salida `"Valor del número Pi: %f"`
+    > Ejemplo: `"Valor del número Pi con 4 decimales: {{$1;decimal;4}}"` da como salida `"Valor del número Pi con 4 decimales: %.4f"`
+
 ---
-En todos los casos la variable `{{posición}}` es la posición que ocupa el parámetro en la cadena de texto, empezando desde 1. Cada nuevo parámetro aumentará este valor en 1.
+En todos los casos vistos la variable `<posición>` es la posición que ocupa el parámetro en la cadena de texto, empezando desde 1. Cada nuevo parámetro aumentará este valor en 1.
 
-  > Ejemplo: `"Hola, {%1string} y {%2string}. Mi número de teléfono es {%109int}"` da como salida `"Hola, %@ y %@. Mi número de teléfono es %09ld"`
+  > Ejemplo: `"Hola, {{$1;string}} y {{$2;string}}. Tengo {{$3;number}} años y el número Pi tiene un valor de {{$4;decimal;8}}"` da como salida `"Hola, %@ y %@. Tengo %ld años y el número Pi tiene un valor de %.8f"`
 
 ### Parámetros del script
 
@@ -85,9 +88,9 @@ Al llamar al script SDOSTraduora podemos usar los siguientes parámetros
 |Parámetro|Obligatorio|Descripción|Ejemplo|
 |---------|-----------|-----------|-----------|
 |`--lang [valor]`||Locales a descargar separados por `;`. Si no se indica se descargan todos los locales disponibles en el proyecto|`es_ES;eu_ES`|
-|`--client-id [valor]`|[x]| `client id` del proyecto creado en traduora | `6d7bdab2-9bf4-4207-8f9b-8b4fc092715c`|
-|`--client-secret [valor]`|[x]|`client secret` del proyecto creado en traduora|`bXTaRO6ilBLtNykwXsuvaAbXtllbAwla`|
-|`--project-id [valor]`|[x]|Identificador del proyecto de traduora|`f2413d5a-71b6-48ce-b27d-64a82dd71899`|
+|`--client-id [valor]`|[x]| `client id` del proyecto creado en traduora. Se obtiene del apartado `API Keys` del proyecto en traduora| `6d7bdab2-9bf4-4207-8f9b-8b4fc092715c`|
+|`--client-secret [valor]`|[x]|`client secret` del proyecto creado en traduora|`bXTaRO6ilBLtNykwXsuvaAbXtllbAwla`. Se obtiene del apartado `API Keys` del proyecto en traduora|
+|`--project-id [valor]`|[x]|Identificador del proyecto de traduora. Se puede obtener de la propia url al entrar un proyecto de traduora|`f2413d5a-71b6-48ce-b27d-64a82dd71899`|
 |`--server [valor]`|[x]|Dominio del servidor de traduora donde se deberá conectar para realizar la descarga de los ficheros|`traduora.myinstance.com`|
 |`--output-path [valor]`|[x]|Carpeta de destino donde se descargaran las traduciones de traduora|`${SRCROOT}/main/resources/generated`|
 |`--output-file-name [valor]`|[x]|Nombre de los ficheros descargados desde traduora|`Localizable.generated.strings`|
