@@ -89,7 +89,7 @@ Al llamar al script SDOSTraduora podemos usar los siguientes parámetros
 |---------|-----------|-----------|-----------|
 |`--lang [valor]`||Locales a descargar separados por `;`. Si no se indica se descargan todos los locales disponibles en el proyecto|`es_ES;eu_ES`|
 |`--client-id [valor]`|[x]| `client id` del proyecto creado en traduora. Se obtiene del apartado `API Keys` del proyecto en traduora| `6d7bdab2-9bf4-4207-8f9b-8b4fc092715c`|
-|`--client-secret [valor]`|[x]|`client secret` del proyecto creado en traduora|`bXTaRO6ilBLtNykwXsuvaAbXtllbAwla`. Se obtiene del apartado `API Keys` del proyecto en traduora|
+|`--client-secret [valor]`|[x]|`client secret` del proyecto creado en traduora. Se obtiene del apartado `API Keys` del proyecto en traduora|`bXTaRO6ilBLtNykwXsuvaAbXtllbAwla`|
 |`--project-id [valor]`|[x]|Identificador del proyecto de traduora. Se puede obtener de la propia url al entrar un proyecto de traduora|`f2413d5a-71b6-48ce-b27d-64a82dd71899`|
 |`--server [valor]`|[x]|Dominio del servidor de traduora donde se deberá conectar para realizar la descarga de los ficheros|`traduora.myinstance.com`|
 |`--output-path [valor]`|[x]|Carpeta de destino donde se descargaran las traduciones de traduora|`${SRCROOT}/main/resources/generated`|
