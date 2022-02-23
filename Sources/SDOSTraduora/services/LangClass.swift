@@ -32,8 +32,9 @@ final class LangClass {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             guard error == nil, let data = data else {
+                print("[SDOSTraduora] Error al recuperar los lenguajes de las traducciones - \(error!.localizedDescription)")
                 semaphore.signal()
-                return
+                exit(11)
             }
             
             if let lang = try? LangDTO(data: data) {
@@ -71,8 +72,9 @@ final class LangClass {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             guard error == nil, let data = data else {
+                print("[SDOSTraduora] Error al recuperar las traducciones - \(error!.localizedDescription)")
                 semaphore.signal()
-                return
+                exit(10)
             }
             
             if let items = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: String] {
@@ -108,7 +110,9 @@ final class LangClass {
                         return finalLine
                     }.joined(separator: "\n")
                     try [header, strings].joined(separator: "\n\n").write(toFile: filePath, atomically: true, encoding: .utf8)
-                } catch { print(error.localizedDescription) }
+                } catch {
+                    print("[SDOSTraduora] Error al generar el fichero de traducciones - \(error.localizedDescription)")
+                }
             }
             
             semaphore.signal()
