@@ -77,10 +77,6 @@ final class LangClass {
                 exit(10)
             }
             print("[SDOSTraduora] Generando fichero para el idioma \(language)")
-            
-            if let algo = String(data: data, encoding: .utf8) {
-                print("[SDOSTraduora] json: \(algo)")
-            }
             if let items = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: String] {
                 let directoryName = "\(output)/\(language.split(separator: "_").first!).lproj"
                 
@@ -107,18 +103,14 @@ final class LangClass {
                     let strings = items.sorted(by: { e1, e2 in
                         e1.key < e2.key
                     }).map {
-                        var finalLine = "\"\($0.key)\" = \"\(self.formatLine($0.value))\";"
-                        while finalLine.contains("{") {
-                            finalLine = self.formatLine(finalLine)
-                        }
-                        return finalLine
+                        return "\"\($0.key)\" = \"\(self.formatLine($0.value))\";"
                     }.joined(separator: "\n")
                     try [header, strings].joined(separator: "\n\n").write(toFile: filePath, atomically: true, encoding: .utf8)
                 } catch {
                     print("[SDOSTraduora] Error al generar el fichero de traducciones - \(error.localizedDescription)")
                 }
+                print("[SDOSTraduora] Fichero generado para el idioma \(language) en \(filePath)")
             }
-            
             semaphore.signal()
             
         })
