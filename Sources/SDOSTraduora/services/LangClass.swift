@@ -32,7 +32,7 @@ final class LangClass {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             guard error == nil, let data = data else {
-                print("[SDOSTraduora] Error al recuperar los lenguajes de las traducciones - \(error!.localizedDescription)")
+                print("[SDOSTraduora] Error al recuperar los lenguajes de las traducciones. Error: \(error!.localizedDescription)")
                 semaphore.signal()
                 exit(11)
             }
@@ -72,13 +72,13 @@ final class LangClass {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             guard error == nil, let data = data else {
-                print("[SDOSTraduora] Error al recuperar las traducciones - \(error!.localizedDescription)")
+                print("[SDOSTraduora] Error al recuperar las traducciones. Error: \(error!.localizedDescription)")
                 semaphore.signal()
                 exit(10)
             }
-            print("[SDOSTraduora] Generando fichero para el idioma \(language)")
             if let items = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: String] {
                 let directoryName = "\(output)/\(language.split(separator: "_").first!).lproj"
+                print("[SDOSTraduora] Generando fichero para el idioma \(language)")
                 
                 let fileManager = FileManager.default
                 var isDir: ObjCBool = false
@@ -89,7 +89,12 @@ final class LangClass {
                 }
                 
                 if !fileManager.fileExists(atPath: directoryName, isDirectory: &isDir) {
-                    try? fileManager.createDirectory(atPath: directoryName, withIntermediateDirectories: true, attributes: nil)
+                    do {
+                        try fileManager.createDirectory(atPath: directoryName, withIntermediateDirectories: true, attributes: nil)
+                    } catch {
+                        print("[SDOSTraduora] Error al crear la carpeta para las traduciones \(directoryName). Error: \(error)")
+                        exit(12)
+                    }
                 }
                 
                 let filePath = "\(directoryName)/\(fileName)"
@@ -107,9 +112,16 @@ final class LangClass {
                     }.joined(separator: "\n")
                     try [header, strings].joined(separator: "\n\n").write(toFile: filePath, atomically: true, encoding: .utf8)
                 } catch {
-                    print("[SDOSTraduora] Error al generar el fichero de traducciones - \(error.localizedDescription)")
+                    print("[SDOSTraduora] Error al generar el fichero de traducciones para el idioma \(language) en \(filePath). Error \(error.localizedDescription)")
                 }
                 print("[SDOSTraduora] Fichero generado para el idioma \(language) en \(filePath)")
+            } else {
+                if let json = String(data: data, encoding: .utf8) {
+                    print("[SDOSTraduora] Error al parsear el JSON para el idioma \(language). JSON: \(json)")
+                } else {
+                    print("[SDOSTraduora] Error al parsear el JSON para el idioma \(language)")
+                }
+                    exit(13)
             }
             semaphore.signal()
             

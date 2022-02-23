@@ -32,7 +32,7 @@ final class AuthClass {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             guard error == nil, let data = data else {
-                print("[SDOSTraduora] Error al autenticarse - \(error!.localizedDescription)")
+                print("[SDOSTraduora] Error al autenticarse. Error: \(error!.localizedDescription)")
                 semaphore.signal()
                 exit(9)
             }

@@ -26,7 +26,7 @@ struct SDOSTraduora: ParsableCommand {
     }
     
     func downloadLang(language: String) {
-        print("Downloading ... \(language)")
+        print("[SDOSTraduora] Descargando idioma \(language)...")
         LangClass.shared.download(server: server, project: self.projectId, language: language, output: self.output, fileName: outputFileName, label: self.label)
     }
     

@@ -8,8 +8,8 @@
 import Foundation
 // MARK: - AuthObject
 struct AuthObject: Codable {
-    var grantType: String = "client_credentials"
-    var username: String = "ios@alten.es"
+    var grantType: String = "client_credentials" //Need this value hardoced
+    var username: String = "ios@alten.es" //Need this value hardoced
     var password: String = "-------------"
     let clientID: String
     let clientSecret: String
