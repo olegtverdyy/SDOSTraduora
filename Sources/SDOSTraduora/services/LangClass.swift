@@ -76,7 +76,11 @@ final class LangClass {
                 semaphore.signal()
                 exit(10)
             }
+            print("[SDOSTraduora] Generando fichero para el idioma \(language)")
             
+            if let algo = String(data: data, encoding: .utf8) {
+                print("[SDOSTraduora] json: \(algo)")
+            }
             if let items = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: String] {
                 let directoryName = "\(output)/\(language.split(separator: "_").first!).lproj"
                 
