@@ -16,6 +16,7 @@ struct Constants {
         }
         static let auth = "api/v1/auth/token"
         static func langs(project: String) -> String { "api/v1/projects/\(project)/translations" }
+        static func upload(project: String) -> String { "api/v1/projects/\(project)/imports" }
         static func downloadLang(project: String, language: String, label: String? = nil) -> String {
             if let label = label {
                 return "api/v1/projects/\(project)/exports/\(label)"
@@ -32,10 +33,12 @@ struct Constants {
         struct headers {
             static let contentType = "Content-Type"
             static let authorization = "authorization"
+            static let contentLenght = "Content-Length"
             
             struct value {
                 static let json = "application/json"
                 static let octet = "application/octet-stream"
+                static let formData = "multipart/form-data"
             }
         }
         

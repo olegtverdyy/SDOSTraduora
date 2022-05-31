@@ -49,11 +49,87 @@ final class LangClass {
         semaphore.wait()
     }
     
+    
+    func upload(server: String?, project: String, language: String, fileName: String, format: String = "strings") {
+        let semaphore = DispatchSemaphore(value: 0)
+        
+        guard let url = URL(string: "file://\(fileName)"), let fileData = try? Data(contentsOf: url)
+        else {
+            print("[SDOSTraduora] El fichero no es correcto.")
+            exit(9)
+        }
+        
+        var components = URLComponents(string: "\(Constants.ws.getBaseUrl(server: server))\(Constants.ws.upload(project: project))")!
+        
+        components.queryItems = [
+            URLQueryItem(name: Constants.ws.query.locale, value: language),
+            URLQueryItem(name: Constants.ws.query.format, value: format)
+        ]
+        
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
+        
+        let request = NSMutableURLRequest(url: components.url!,
+                                          cachePolicy: .useProtocolCachePolicy,
+                                          timeoutInterval: 15.0)
+        request.httpMethod = Constants.ws.method.POST
+        
+        let boundary = UUID().uuidString
+        
+        let fileName = url.lastPathComponent
+        let mimetype = mimeType(for: fileName)
+        let paramName = "file"
+        
+        var data = Data()
+        data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
+        data.append("Content-Disposition: form-data; name=\"\(paramName)\"; filename=\"\(fileName)\"\r\n".data(using: .utf8)!)
+        data.append("Content-Type: \(mimetype)\r\n\r\n".data(using: .utf8)!)
+        data.append(fileData)
+        data.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.allHTTPHeaderFields = [
+            Constants.ws.headers.contentType: "multipart/form-data; boundary=\(boundary)",
+            Constants.ws.headers.contentLenght: String(data.count),
+            Constants.ws.headers.authorization: AuthClass.shared.bearer()
+        ]
+        
+        let session = URLSession.shared
+        let dataTask = session.uploadTask(with: request as URLRequest, from: data, completionHandler: { (data, response, error) -> Void in
+            guard error == nil, let _ = data else {
+                print("[SDOSTraduora] Error al recuperar las traducciones. Error: \(error!.localizedDescription)")
+                semaphore.signal()
+                exit(10)
+            }
+            print("[SDOSTraduora] Traduccion subida correctamente.")
+            
+            semaphore.signal()
+        })
+        
+        dataTask.resume()
+        semaphore.wait()
+    }
+    
+    private func mimeType(for path: String) -> String {
+        let pathExtension = URL(fileURLWithPath: path).pathExtension as NSString
+        guard
+            let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension, nil)?.takeRetainedValue(),
+            let mimetype = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue()
+        else {
+            return "application/octet-stream"
+        }
+        
+        return mimetype as String
+    }
+    
     func download(server: String?, project: String, language: String, output: String, fileName: String, label: String? = nil) {
+        guard output.isEmpty || fileName.isEmpty else {
+            print("[SDOSTraduora] No se ha proporcionado ruta de salida o nombre del fichero de salida.")
+            exit(9)
+        }
+        
         let semaphore = DispatchSemaphore(value: 0)
         
         var components = URLComponents(string: "\(Constants.ws.getBaseUrl(server: server))\(Constants.ws.downloadLang(project: project, language: language, label: label))")!
-
+        
         components.queryItems = [
             URLQueryItem(name: Constants.ws.query.locale, value: language),
             URLQueryItem(name: Constants.ws.query.format, value: Constants.ws.query.value.jsonNested)
@@ -121,7 +197,7 @@ final class LangClass {
                 } else {
                     print("[SDOSTraduora] Error al parsear el JSON para el idioma \(language)")
                 }
-                    exit(13)
+                exit(13)
             }
             semaphore.signal()
             
@@ -143,7 +219,7 @@ final class LangClass {
         lineFinal = lineFinal.replaceRegexNumber()
         lineFinal = lineFinal.replaceRegexDecimal()
         lineFinal = lineFinal.replaceRegexString()
-
+        
         return lineFinal
     }
     
