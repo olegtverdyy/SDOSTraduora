@@ -12,13 +12,15 @@ final class LangClass {
     
     private init() { }
     
+    private var cleanDirectory = false
+    
     private var langs: [String]?
     
-    func langs(project: String) {
+    func langs(project: String, server: String?) {
         
         let semaphore = DispatchSemaphore(value: 0)
         
-        let request = NSMutableURLRequest(url: URL(string: "\(Constants.ws.baseUrl)\(Constants.ws.langs(project: project))")!,
+        let request = NSMutableURLRequest(url: URL(string: "\(Constants.ws.getBaseUrl(server: server))\(Constants.ws.langs(project: project))")!,
                                           cachePolicy: .useProtocolCachePolicy,
                                           timeoutInterval: 15.0)
         request.httpMethod = Constants.ws.method.GET
@@ -30,8 +32,9 @@ final class LangClass {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             guard error == nil, let data = data else {
+                print("[SDOSTraduora] Error al recuperar los lenguajes de las traducciones. Error: \(error!.localizedDescription)")
                 semaphore.signal()
-                return
+                exit(11)
             }
             
             if let lang = try? LangDTO(data: data) {
@@ -46,10 +49,10 @@ final class LangClass {
         semaphore.wait()
     }
     
-    func download(project: String, language: String, output: String, label: String? = nil) {
+    func download(server: String?, project: String, language: String, output: String, fileName: String, label: String? = nil) {
         let semaphore = DispatchSemaphore(value: 0)
         
-        var components = URLComponents(string: "\(Constants.ws.baseUrl)\(Constants.ws.downloadLang(project: project, language: language, label: label))")!
+        var components = URLComponents(string: "\(Constants.ws.getBaseUrl(server: server))\(Constants.ws.downloadLang(project: project, language: language, label: label))")!
 
         components.queryItems = [
             URLQueryItem(name: Constants.ws.query.locale, value: language),
@@ -69,41 +72,57 @@ final class LangClass {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             guard error == nil, let data = data else {
+                print("[SDOSTraduora] Error al recuperar las traducciones. Error: \(error!.localizedDescription)")
                 semaphore.signal()
-                return
+                exit(10)
             }
-            
             if let items = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: String] {
                 let directoryName = "\(output)/\(language.split(separator: "_").first!).lproj"
+                print("[SDOSTraduora] Generando fichero para el idioma \(language)")
                 
                 let fileManager = FileManager.default
                 var isDir: ObjCBool = false
                 
-                if !fileManager.fileExists(atPath: directoryName, isDirectory: &isDir) {
-                    try? fileManager.createDirectory(atPath: directoryName, withIntermediateDirectories: true, attributes: nil)
+                if !self.cleanDirectory {
+                    self.cleanDirectory = true
+                    try? fileManager.removeItem(atPath: "\(output)")
                 }
                 
-                let filePath = "\(directoryName)/Localizable.generated.strings"
+                if !fileManager.fileExists(atPath: directoryName, isDirectory: &isDir) {
+                    do {
+                        try fileManager.createDirectory(atPath: directoryName, withIntermediateDirectories: true, attributes: nil)
+                    } catch {
+                        print("[SDOSTraduora] Error al crear la carpeta para las traduciones \(directoryName). Error: \(error)")
+                        exit(12)
+                    }
+                }
+                
+                let filePath = "\(directoryName)/\(fileName)"
                 do {
                     let header = """
                     //  This is a generated file, do not edit!
                     //  Localizable.generated.strings
                     //
-                    //  Created by SDOS
-                    //
                     //  Generate \(items.count) keys
                     """
-                    let strings = items.map {
-                        var finalLine = self.formatLine("\"\($0.key)\" = \"\($0.value)\";")
-                        while finalLine.contains("{") {
-                            finalLine = self.formatLine(finalLine)
-                        }
-                        return finalLine
+                    let strings = items.sorted(by: { e1, e2 in
+                        e1.key < e2.key
+                    }).map {
+                        return "\"\($0.key)\" = \"\(self.formatLine($0.value))\";"
                     }.joined(separator: "\n")
                     try [header, strings].joined(separator: "\n\n").write(toFile: filePath, atomically: true, encoding: .utf8)
-                } catch { print(error.localizedDescription) }
+                } catch {
+                    print("[SDOSTraduora] Error al generar el fichero de traducciones para el idioma \(language) en \(filePath). Error \(error.localizedDescription)")
+                }
+                print("[SDOSTraduora] Fichero generado para el idioma \(language) en \(filePath)")
+            } else {
+                if let json = String(data: data, encoding: .utf8) {
+                    print("[SDOSTraduora] Error al parsear el JSON para el idioma \(language). JSON: \(json)")
+                } else {
+                    print("[SDOSTraduora] Error al parsear el JSON para el idioma \(language)")
+                }
+                    exit(13)
             }
-            
             semaphore.signal()
             
         })
@@ -118,20 +137,12 @@ final class LangClass {
         
         var lineFinal = line
         
-        lineFinal.removingRegexMatches(pattern: "%\\d", replaceWith: "")
         lineFinal = lineFinal.replacingOccurrences(of: "%", with: "%%")
-        
-        
-        if let slice = lineFinal.slice(from: "{", to: "}") {
-            if slice == "string" {
-                lineFinal = lineFinal.replacingOccurrences(of: "{\(slice)}", with: "%@")
-            } else if slice == "int" {
-                lineFinal = lineFinal.replacingOccurrences(of: "{\(slice)}", with: "%ld")
-            } else if slice.contains("int") {
-                let valueToRemplace = slice.replacingOccurrences(of: "int", with: "ld")
-                lineFinal = lineFinal.replacingOccurrences(of: "{\(slice)}", with: "%\(valueToRemplace)")
-            }
-        }
+        lineFinal = lineFinal.replacingOccurrences(of: "\"", with: "\\\"")
+        lineFinal = lineFinal.replacingOccurrences(of: "\n", with: "\\n")
+        lineFinal = lineFinal.replaceRegexNumber()
+        lineFinal = lineFinal.replaceRegexDecimal()
+        lineFinal = lineFinal.replaceRegexString()
 
         return lineFinal
     }

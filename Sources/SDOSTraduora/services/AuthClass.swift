@@ -14,13 +14,13 @@ final class AuthClass {
     
     private var authObject: AuthDTO?
     
-    func auth(_ form: AuthObject) {
+    func auth(_ form: AuthObject, server: String?) {
         
         guard let parameters = try? form.jsonData() else { return }
         
         let semaphore = DispatchSemaphore(value: 0)
         
-        let request = NSMutableURLRequest(url: URL(string: "\(Constants.ws.baseUrl)\(Constants.ws.auth)")!,
+        let request = NSMutableURLRequest(url: URL(string: "\(Constants.ws.getBaseUrl(server: server))\(Constants.ws.auth)")!,
                                           cachePolicy: .useProtocolCachePolicy,
                                           timeoutInterval: 15.0)
         request.httpMethod = Constants.ws.method.POST
@@ -32,8 +32,9 @@ final class AuthClass {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             guard error == nil, let data = data else {
+                print("[SDOSTraduora] Error al autenticarse. Error: \(error!.localizedDescription)")
                 semaphore.signal()
-                return
+                exit(9)
             }
 
             if let auth = try? AuthDTO(data: data) {
